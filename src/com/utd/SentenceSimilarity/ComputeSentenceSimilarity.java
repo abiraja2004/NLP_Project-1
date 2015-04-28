@@ -10,7 +10,7 @@ public class ComputeSentenceSimilarity {
     	String str2 = "a child is performing on a tiny instrument";
     	
 //    	ParseInput.parseGivenInputFile("corpus1.txt");
-    	ParseInput.parseGivenInputFile("corpus1.txt");
+    	ParseInput.parseAllInputFiles();
     	
     	ComputeSimilarity(str1, str2);
     } 

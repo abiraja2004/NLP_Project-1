@@ -8,15 +8,45 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class ParseInput {
-
-	public static void parseGivenInputFile(String fileName) throws IOException {
+	
+	/**
+	 * Method that runs 'parsing' function on all the input files.
+	 * All input files are listed in the folder 'Corpus'
+	 * Input file format: 'corpus1.txt', 'corpus2.txt', 'corpus3.txt'
+	 * @throws IOException
+	 */
+	public static void parseAllInputFiles() throws IOException {
 		
-		String appendStr = "";
-		Scanner fileScanner = new Scanner(new File("Corpus/"+fileName));
+		File folder = new File("Corpus");
+		File allFiles[] = folder.listFiles();
+
 		BufferedWriter bw = new BufferedWriter(new FileWriter(new File("Corpus/allCorpus.txt")));
+		bw.write("");
+		bw.close();
+		
+		for(File file : allFiles) {
+			if(file.getName().contains("corpus")) 
+				parseGivenInputFile(file);
+		}
+		
+	}
+
+	/**
+	 * Given a file name, extracts each sentence and append it to the 'allCorpus.txt'
+	 * @param file
+	 * @throws IOException
+	 */
+	public static void parseGivenInputFile(File file) throws IOException {
+
+		String appendStr = "";
+		Scanner fileScanner = new Scanner(file);
+		BufferedWriter bw = new BufferedWriter(new FileWriter(file.getParent()+"/allCorpus.txt", true));
 		while(fileScanner.hasNextLine()) {
 			
 			String strLine = fileScanner.nextLine().trim();
+			if(strLine.length() == 0)								// if just a blank space, then skip it.
+				continue;
+			strLine = customizeInputLine(strLine);
 			String strLineArray[] = strLine.split("\\.");
 			for(int i=0;i<strLineArray.length;i++)
 				strLineArray[i] = strLineArray[i].trim();
@@ -50,6 +80,41 @@ public class ParseInput {
 		}
 		bw.close();
 		fileScanner.close();
+	}
+
+	/**
+	 * Method that calls the 2 methods given below
+	 * @param strLine
+	 * @return
+	 */
+	private static String customizeInputLine(String strLine) {
+		strLine = ReplaceMultipleDotsBySingle(strLine);
+		strLine = ReplaceDotsInProperNoun(strLine);
+		return strLine;
+	}
+
+	/**
+	 * Method that replaces 'U.S. Defence' into 'U S Defence'
+	 * @param strLine
+	 * @return
+	 */
+	private static String ReplaceDotsInProperNoun(String strLine) {
+		for(int i=1;i<strLine.length();i++)
+			if(strLine.charAt(i) == '.' && strLine.charAt(i-1) >= 65 && strLine.charAt(i-1) <= 90) {
+				StringBuilder sbr = new StringBuilder(strLine);
+				sbr.setCharAt(i, ' ');
+				strLine = sbr.toString();
+			}
+		return strLine;
+	}
+
+	/**
+	 * Method that replaces '...' into '.'
+	 * @param strLine
+	 * @return
+	 */
+	private static String ReplaceMultipleDotsBySingle(String strLine) {
+		return strLine.replaceAll("\\.+", "\\.");
 	}
 	
 }
