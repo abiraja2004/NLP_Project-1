@@ -90,6 +90,39 @@ public class ParseInput {
 	private static String customizeInputLine(String strLine) {
 		strLine = ReplaceMultipleDotsBySingle(strLine);
 		strLine = ReplaceDotsInProperNoun(strLine);
+		strLine = ReplaceQuotes(strLine);
+		strLine = ReplaceComma(strLine);
+		strLine = ReplaceMultipleSpacesIntoSingleOne(strLine);
+		return strLine.trim();
+	}
+
+	/**
+	 * Method to replace comma(,) with ''
+	 * @param strLine
+	 * @return
+	 */
+	private static String ReplaceComma(String strLine) {
+		return strLine.replaceAll("\\,", "");
+	}
+
+	/**
+	 * Method to replace '  ' into ' '
+	 * @param strLine
+	 * @return
+	 */
+	private static String ReplaceMultipleSpacesIntoSingleOne(String strLine) {
+		strLine = strLine.replaceAll("\\s+", " ");
+		return strLine;
+	}
+
+	/**
+	 * Method that replaces single & double quotes into space 
+	 * @param strLine
+	 * @return
+	 */
+	private static String ReplaceQuotes(String strLine) {
+		strLine = strLine.replaceAll("\"", "");
+		strLine = strLine.replaceAll("\'", "");
 		return strLine;
 	}
 
@@ -102,8 +135,7 @@ public class ParseInput {
 		for(int i=1;i<strLine.length();i++)
 			if(strLine.charAt(i) == '.' && strLine.charAt(i-1) >= 65 && strLine.charAt(i-1) <= 90) {
 				StringBuilder sbr = new StringBuilder(strLine);
-				sbr.setCharAt(i, ' ');
-				strLine = sbr.toString();
+				strLine = sbr.replace(i, i+1, "").toString();
 			}
 		return strLine;
 	}
