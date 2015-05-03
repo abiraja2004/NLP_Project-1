@@ -7,15 +7,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+import com.utd.Domain.Sentence;
+
 public class ParseInput {
 	
 	/**
 	 * Method that runs 'parsing' function on all the input files.
 	 * All input files are listed in the folder 'Corpus'
 	 * Input file format: 'corpus1.txt', 'corpus2.txt', 'corpus3.txt'
+	 * @param sentence 
 	 * @throws IOException
 	 */
-	public static void parseAllInputFiles() throws IOException {
+	public static void parseAllInputFiles(Sentence sentence) throws IOException {
 		
 		File folder = new File("Corpus");
 		File allFiles[] = folder.listFiles();
@@ -26,7 +29,7 @@ public class ParseInput {
 		
 		for(File file : allFiles) {
 			if(file.getName().contains("corpus")) 
-				parseGivenInputFile(file);
+				parseGivenInputFile(file, sentence);
 		}
 		
 	}
@@ -34,9 +37,10 @@ public class ParseInput {
 	/**
 	 * Given a file name, extracts each sentence and append it to the 'allCorpus.txt'
 	 * @param file
+	 * @param sentence 
 	 * @throws IOException
 	 */
-	public static void parseGivenInputFile(File file) throws IOException {
+	public static void parseGivenInputFile(File file, Sentence sentence) throws IOException {
 
 		String appendStr = "";
 		Scanner fileScanner = new Scanner(file);
@@ -60,26 +64,31 @@ public class ParseInput {
 			}
 				
 			if(!appendStr.equals(""))												// append to the old value
-				bw.write(appendStr.concat(" " + strLineArray[0]) + ".\n");
+				writeLineAndAddToMap(bw, sentence, appendStr.concat(" " + strLineArray[0]));
 			else
-				bw.write(strLineArray[0] + ".\n");
+				writeLineAndAddToMap(bw, sentence, strLineArray[0]);
 			
 			for(int i=1;i<strLineArray.length-1;i++) {								// write all sentences except first and last sentence 
 //				System.out.println(strLineArray[i]);
-				bw.write(strLineArray[i] + ".\n");
+				writeLineAndAddToMap(bw, sentence, strLineArray[i]);
 			}
 				
 			
 			if(strLine.charAt(strLine.length()-1) != '.')							// if last char is not '.', then create appendString
 				appendStr = strLineArray[strLineArray.length-1];
-			else if(strLineArray.length > 1)  										// if last char is '.', then check if there are more than 2 sub strings to prevent duplicate printing 
-					bw.write(strLineArray[strLineArray.length-1] + ".\n");
+			else if(strLineArray.length > 1)  										// if last char is '.', then check if there are more than 2 sub strings to prevent duplicate printing
+				writeLineAndAddToMap(bw, sentence, strLineArray[strLineArray.length-1]);
 			else
-					appendStr = "";
+				appendStr = "";
 			
 		}
 		bw.close();
 		fileScanner.close();
+	}
+
+	private static void writeLineAndAddToMap(BufferedWriter bw, Sentence sentence, String strToWrite) throws IOException {
+		bw.write(strToWrite + "\n");
+		sentence.addSentence(strToWrite);
 	}
 
 	/**
