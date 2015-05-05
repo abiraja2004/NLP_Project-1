@@ -23,11 +23,12 @@ public class ParseInput {
 		File folder = new File("Corpus");
 		File allFiles[] = folder.listFiles();
 
-		BufferedWriter bw = new BufferedWriter(new FileWriter(new File("Corpus/allCorpusSentences.txt")));
+		BufferedWriter bw = new BufferedWriter(new FileWriter(new File("Corpus/allCorpus.txt")));
 		bw.write("");
 		bw.close();
+		
 		for(File file : allFiles) {
-			if(file.getName().contains("smallCorpus")) 
+			if(file.getName().contains("corpus")) 
 				parseGivenInputFile(file, sentence);
 		}
 		
@@ -40,10 +41,10 @@ public class ParseInput {
 	 * @throws IOException
 	 */
 	public static void parseGivenInputFile(File file, Sentence sentence) throws IOException {
-		System.out.println("Reading from the file " + file.getName());
+
 		String appendStr = "";
 		Scanner fileScanner = new Scanner(file);
-		BufferedWriter bw = new BufferedWriter(new FileWriter("Corpus/allCorpusSentences.txt", true));
+		BufferedWriter bw = new BufferedWriter(new FileWriter(file.getParent()+"/allCorpus.txt", true));
 		while(fileScanner.hasNextLine()) {
 			
 			String strLine = fileScanner.nextLine().trim();

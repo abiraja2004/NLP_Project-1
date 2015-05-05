@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.utd.SentenceSimilarity.ComputeSentenceSimilarity;
@@ -15,18 +14,15 @@ public class Sentence {
 
 	public Map<String, Integer> mapSentence;
 	public Map<String, Double> mapSSscore;
-	public Integer kPoints[] = {1,3,5,7,9};
+	public Integer kPoints[] = {1,5,10};
 	public ArrayList<Cluster> clustersArray;
 	
 	public Sentence() {
-		 mapSentence = new LinkedHashMap<String, Integer>();
+		 mapSentence = new HashMap<String, Integer>();
 		 mapSSscore = new HashMap<String, Double>();
 		 clustersArray = new ArrayList<Cluster>(kPoints.length);
-		 for(int i=0;i<kPoints.length;i++) {
-			 Cluster temp = new Cluster();
-			 temp.clusterId = i+1;
-			 clustersArray.add(temp);
-		 }
+		 for(int i=0;i<kPoints.length;i++)
+			 clustersArray.add(new Cluster());
 	}
 	
 	public void addSentence(String sentence) {
@@ -46,8 +42,11 @@ public class Sentence {
 	 * Function that chooses 'k' random sentences as centroid of each cluster 
 	 */
 	public void chooseKRandomPoints() {
-		kPoints[0] = 1;	kPoints[1] = 5; kPoints[2] = 6; kPoints[3] = 10; kPoints[4] = 13;
+		kPoints[0] = 1;								// customized the values of k
+		kPoints[1] = 3;
+		kPoints[2] = 7;
 		int clusterIndex = 0;
+		System.out.println("asdf" + clustersArray.size());
 		for(Map.Entry<String, Integer> entry : mapSentence.entrySet()) {
 			if(isValueInK(entry.getValue(), kPoints))
 				clustersArray.get(clusterIndex++).centroidSentence = entry.getKey();
@@ -69,46 +68,19 @@ public class Sentence {
 		}
 	}
 
-	/**
-	 * kMeans algorithm
-	 * @throws Exception
-	 */
 	public void runKMeansAlgorithm() throws Exception {
 		
-		System.out.println("\n\n\n\nRunning kMeans algorithm:\n\n\n\n\n");
-		String oldCentroids[] = new String[kPoints.length];
-		do {
-			
-			System.out.println("\n\n\n");
-//			for(int i=0;i<clustersArray.size();i++)
-//				System.out.println("Centroid of cluster " + i + " >> " + clustersArray.get(i).centroidSentence);
-			for(int i=0;i<clustersArray.size();i++) {			// for each cluster
-				oldCentroids[i] = clustersArray.get(i).centroidSentence;
-				clustersArray.get(i).computeIntraClusterSimilarityScore();
-				clustersArray.get(i).recomputeNewCentroid();
-			}
-		}while(!centroidChanges(oldCentroids));
+		for(int i=0;i<clustersArray.size();i++) {			// for each cluster
+			clustersArray.get(i).computeIntraSimilarityScore();
+			clustersArray.get(i).recomputeNewCentroid();
+		}
+		
 	}
-	
-	public void writeToSummary() throws IOException {
-		BufferedWriter bw = new BufferedWriter(new FileWriter(new File("Corpus/smallSummary.txt")));
-		for(Cluster temp : clustersArray)
-			bw.write(temp.centroidSentence + "\n");
-		bw.close();
-	}
-	
+
 	/*
 	 * Helper functions below
 	 */
 	
-	private boolean centroidChanges(String[] oldCentroids) {
-		int index = 0;
-		for(Cluster temp : clustersArray)
-			if(!oldCentroids[index++].equals(temp.centroidSentence))
-				return false;
-		return true;
-	}
-
 	/**
 	 * Function that checks if the given point is in 'k' point array
 	 * @param value
@@ -130,7 +102,7 @@ public class Sentence {
 	public void writeAllSentencesToAFile(Sentence sentence) throws IOException {
 		
 		// write all sentences
-		BufferedWriter bw = new BufferedWriter(new FileWriter(new File("Corpus/AllMapSentences.txt")));
+		BufferedWriter bw = new BufferedWriter(new FileWriter(new File("Corpus/HashMap1.txt")));
 		for(Map.Entry<String, Integer> entry : mapSentence.entrySet())
 			bw.write(entry.getValue() + " >>> " + entry.getKey() + "\n");
 		bw.close();
@@ -145,5 +117,15 @@ public class Sentence {
 				bw1.write(entry.getKey() + "\n");
 		}
 		bw1.close();
+		
+		// write the intra computational score
+		bw1 = new BufferedWriter(new FileWriter(new File("Corpus/IntraClusterSimilarityScore.txt")));
+		for(int i=0;i<clustersArray.size();i++) {
+			bw1.write("\n\n\nCluster " + i + " intra computational scores:\n\n");
+			for(Map.Entry<String, Double> entry : clustersArray.get(i).mapClusterSSscore.entrySet())
+				bw.write(entry.getKey() + " >>> " + entry.getValue());
+		}
+			
 	}
+	
 }
